@@ -1,0 +1,19 @@
+stacks: [frontend]
+regions: [eu-west-1]
+
+deployments:
+  skimlinks-lambda:
+    type: aws-lambda
+    parameters:
+      bucket: aws-frontend-artifacts
+      functionNames: [skimlinks-lambda-]
+      fileName: skimlinks-lambda.jar
+      prefixStack: false
+    dependencies: [skimlinks-lambda-cfn]
+  skimlinks-lambda-cfn:
+    type: cloud-formation
+    app: skimlinks-lambda
+    parameters:
+      prependStackToCloudFormationStackName: false
+      cloudFormationStackName: skimlinks-lambda
+      templatePath: cfn.yaml
