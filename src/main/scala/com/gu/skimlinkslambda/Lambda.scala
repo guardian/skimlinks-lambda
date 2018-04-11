@@ -1,52 +1,65 @@
 package com.gu.skimlinkslambda
 
 import com.amazonaws.services.lambda.runtime.Context
-import org.slf4j.{Logger, LoggerFactory}
+import org.slf4j.{ Logger, LoggerFactory }
 
 /**
-  * This is compatible with aws' lambda JSON to POJO conversion.
-  * You can test your lambda by sending it the following payload:
-  * {"name": "Bob"}
-  */
+ * This is compatible with aws' lambda JSON to POJO conversion.
+ * You can test your lambda by sending it the following payload:
+ * {"name": "Bob"}
+ */
 class LambdaInput() {
   var name: String = _
   def getName(): String = name
   def setName(theName: String): Unit = name = theName
 }
 
-case class Env(app: String, stack: String, stage: String) {
+case class Config(app: String, stack: String, stage: String, skimlinksApiKey: String, skimlinksAccountId: String, bucket: String) {
   override def toString: String = s"App: $app, Stack: $stack, Stage: $stage\n"
-}
-
-object Env {
-  def apply(): Env = Env(
-    Option(System.getenv("App")).getOrElse("DEV"),
-    Option(System.getenv("Stack")).getOrElse("DEV"),
-    Option(System.getenv("Stage")).getOrElse("DEV")
-  )
 }
 
 object Lambda {
 
   val logger: Logger = LoggerFactory.getLogger(this.getClass)
 
+  def configFromEnvironmentVariables: Option[Config] = {
+    for {
+      app <- Option(System.getenv("App"))
+      stack <- Option(System.getenv("Stack"))
+      stage <- Option(System.getenv("Stage"))
+      apiKey <- Option(System.getenv("SkimlinksApiKey"))
+      accountId <- Option(System.getenv("SkimlinksAccountId"))
+      domainsBucket <- Option(System.getenv("DomainsBucket"))
+    } yield {
+      Config(app, stack, stage, apiKey, accountId, domainsBucket)
+    }
+  }
+
   /*
    * This is your lambda entry point
    */
   def handler(lambdaInput: LambdaInput, context: Context): Unit = {
-    val env = Env()
-    logger.info(s"Starting $env")
-    logger.info(process(lambdaInput.name, env))
+    val config = configFromEnvironmentVariables
+    if (config.isDefined) {
+      process(config.get)
+    } else {
+      logger.error("Missing or incorrect config. Please check environment variables.")
+    }
   }
 
-  /*
-   * I recommend to put your logic outside of the handler
-   */
-  def process(name: String, env: Env): String = s"Hello $name! (from ${env.app} in ${env.stack})\n"
+  def process(config: Config): Unit = {
+    val uploadResult = SkimlinksAPI.getDomains(config.skimlinksApiKey, config.skimlinksAccountId).map(S3.uploadDomainsToS3(_, config.bucket))
+    if (uploadResult.isLeft) logger.error(s"Failed to fetch domains ", uploadResult.left.get)
+  }
 }
 
 object TestIt {
   def main(args: Array[String]): Unit = {
-    println(Lambda.process(args.headOption.getOrElse("Alex"), Env()))
+    args.foreach(println)
+    if (args.length < 3) {
+      println("Usage: run <apikey> <accountid> <bucket>")
+    } else {
+      Lambda.process(Config("test", "test", "test", args(0), args(1), args(3)))
+    }
   }
 }

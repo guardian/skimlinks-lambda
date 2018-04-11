@@ -17,8 +17,18 @@ scalacOptions ++= Seq(
 
 libraryDependencies ++= Seq(
   "com.amazonaws" % "aws-lambda-java-core" % "1.2.0",
-  "org.slf4j" % "slf4j-simple" % "1.8.0-beta2"
+  "org.slf4j" % "slf4j-simple" % "1.8.0-beta2",
+  "org.scalaj" %% "scalaj-http" % "2.3.0",
+  "com.amazonaws" % "aws-java-sdk-s3" % "1.11.312"
 )
+
+val circeVersion = "0.9.1"
+
+libraryDependencies ++= Seq(
+  "io.circe" %% "circe-core",
+  "io.circe" %% "circe-generic",
+  "io.circe" %% "circe-parser"
+).map(_ % circeVersion)
 
 enablePlugins(RiffRaffArtifact)
 

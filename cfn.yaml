@@ -16,6 +16,16 @@ Parameters:
       - CODE
       - PROD
     Default: CODE
+  SkimlinksApiKey:
+    Description: Skimlinks.com api key
+    Type: String
+  SkimlinksAccountId:
+    Description: Skimlinks.com account id
+    Type: String
+  DomainsBucket:
+    Description: AWS S3 Bucket in which to save skimlinks domains as csv
+    Default: aws-frontend-store
+    Type: String
   DeployBucket:
     Description: Bucket where RiffRaff uploads artifacts on deploy
     Type: String
@@ -49,6 +59,15 @@ Resources:
               Action:
                 - lambda:InvokeFunction
               Resource: "*"
+        - PolicyName: DomainsBucketPut
+          PolicyDocument:
+            Statement:
+              Effect: Allow
+              Action:
+               - s3:PutObject
+               - s3:PutObjectAcl
+              Resource: !Sub 'arn:aws:s3:::${DomainsBucket}'
+
   Lambda:
     Type: AWS::Lambda::Function
     Properties:
@@ -62,6 +81,9 @@ Resources:
           Stage: !Ref Stage
           Stack: !Ref Stack
           App: !Ref App
+          SkimlinksAccountId: !Ref SkimlinksAccountId
+          SkimlinksApiKey: !Ref SkimlinksApiKey
+          DomainsBucket: !Ref DomainsBucket
       Description: A lambda function to periodically update a file in S3 with a list of domains supported by skimlinks.com, fetched from the skimlinks API.
       Handler: com.gu.skimlinkslambda.Lambda::handler
       MemorySize: 128
