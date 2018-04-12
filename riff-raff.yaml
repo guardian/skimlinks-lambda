@@ -17,3 +17,4 @@ deployments:
       prependStackToCloudFormationStackName: false
       cloudFormationStackName: skimlinks-lambda
       templatePath: cfn.yaml
+      cloudFormationStackByTags: false
