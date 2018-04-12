@@ -1,8 +1,8 @@
 package com.gu.skimlinkslambda
 
-import com.amazonaws.auth.{AWSCredentialsProvider, AWSCredentialsProviderChain, DefaultAWSCredentialsProviderChain}
+import com.amazonaws.auth.{ AWSCredentialsProvider, AWSCredentialsProviderChain, DefaultAWSCredentialsProviderChain }
 import com.amazonaws.auth.profile.ProfileCredentialsProvider
-import com.amazonaws.services.s3.{AmazonS3, AmazonS3ClientBuilder}
+import com.amazonaws.services.s3.{ AmazonS3, AmazonS3ClientBuilder }
 import com.amazonaws.services.s3.model.PutObjectResult
 
 object S3 {
