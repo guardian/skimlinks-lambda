@@ -34,6 +34,9 @@ Parameters:
     Description: Bucket where RiffRaff uploads artifacts on deploy
     Type: String
     Default: aws-frontend-artifacts
+  AlarmEmailRecipient:
+    Type: String
+    Description: Email address to send alerts to if lambda fails
 Resources:
   ExecutionRole:
     Type: AWS::IAM::Role
@@ -91,7 +94,7 @@ Resources:
           DomainsKey: !Ref DomainsKey
       Description: A lambda function to periodically update a file in S3 with a list of domains supported by skimlinks.com, fetched from the skimlinks API.
       Handler: com.gu.skimlinkslambda.Lambda::handler
-      MemorySize: 128
+      MemorySize: 256
       Role: !GetAtt ExecutionRole.Arn
       Runtime: java8
       Timeout: 60
@@ -99,7 +102,7 @@ Resources:
   DailyEvent:
     Type: AWS::Events::Rule
     Properties:
-      Description: Event sent to process the previous day of data
+      Description: Run daily
       ScheduleExpression: cron(14 3 * * ? *)
       Targets:
         - Id: Lambda
@@ -112,3 +115,29 @@ Resources:
       FunctionName: !GetAtt Lambda.Arn
       Principal: events.amazonaws.com
       SourceArn: !GetAtt DailyEvent.Arn
+
+  AlarmTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      Subscription:
+        - Protocol: email
+          Endpoint:
+            Ref: AlarmEmailRecipient
+
+  ErrorAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmActions:
+        - !Ref AlarmTopic
+      AlarmDescription: Skimlinks lambda failed to refresh list of supported domains from skimlinks.com API.
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      Dimensions:
+        - Name: FunctionName
+          Value: !Ref Lambda
+      EvaluationPeriods: 1
+      MetricName: Errors
+      Namespace: AWS/Lambda
+      Period: 60
+      Statistic: Sum
+      Threshold: 1
+      Unit: Count
