@@ -27,7 +27,7 @@ Parameters:
     Default: aws-frontend-store
     Type: String
   DomainsKey:
-    Description: Key to use is S3 for the file with domains
+    Description: Key to use in S3 for the file with domains
     Default: "skimlinks/skimlinks-domains.csv"
     Type: String
   DeployBucket:

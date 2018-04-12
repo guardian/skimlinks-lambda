@@ -31,7 +31,7 @@ object Lambda {
       apiKey <- Option(System.getenv("SkimlinksApiKey"))
       accountId <- Option(System.getenv("SkimlinksAccountId"))
       domainsBucket <- Option(System.getenv("DomainsBucket"))
-      domainsKey <- Option(System.getenv("Domainskey"))
+      domainsKey <- Option(System.getenv("DomainsKey"))
     } yield {
       Config(app, stack, stage, apiKey, accountId, domainsBucket, domainsKey)
     }
@@ -46,13 +46,14 @@ object Lambda {
       process(config.get)
     } else {
       logger.error("Missing or incorrect config. Please check environment variables.")
+      System.exit(1)
     }
   }
 
   def process(config: Config): Unit = {
     logger.info("Fetching skimlinks domains")
     val domainsResult = SkimlinksAPI.getDomains(config.skimlinksApiKey, config.skimlinksAccountId)
-    val uploadResult = domainsResult.map{ domains =>
+    val uploadResult = domainsResult.map { domains =>
       logger.info(s"Uploading ${domains.length} domains to S3")
       S3.uploadDomainsToS3(domains, config.bucket)
     }
@@ -63,10 +64,10 @@ object Lambda {
 object TestIt {
   def main(args: Array[String]): Unit = {
     args.foreach(println)
-    if (args.length < 3) {
+    if (args.length < 4) {
       println("Usage: run <apikey> <accountid> <bucket> <key>")
     } else {
-      Lambda.process(Config("test", "test", "test", args(0), args(1), args(3), args(4)))
+      Lambda.process(Config("test", "test", "test", args(0), args(1), args(2), args(3)))
     }
   }
 }
