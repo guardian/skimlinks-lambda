@@ -3,9 +3,7 @@ package com.gu.skimlinkslambda
 import scalaj.http._
 import io.circe._
 import io.circe.parser._
-import io.circe.syntax._
 import org.slf4j.{ Logger, LoggerFactory }
-import io.circe.optics.JsonPath._
 
 object SkimlinksAPI {
 
@@ -23,7 +21,13 @@ object SkimlinksAPI {
     if (domainsJson.isSuccess) {
       logger.info(s"Success - ${domainsJson.code} response from $skimLinksDomainsUrl")
       parse(domainsJson.body).map { parsedJson =>
-        root.domains.each.domain.string.getAll(parsedJson)
+        parsedJson.hcursor.
+          downField("domains").
+          focus.
+          flatMap(_.asArray).
+          getOrElse(Vector.empty)
+          .flatMap(_.hcursor.get[String]("domain").toOption)
+          .toList
       }.getOrElse(List())
     } else {
       logger.error(s"Failed to reach skimlinks api - error ${domainsJson.code} ${domainsJson.statusLine}")
