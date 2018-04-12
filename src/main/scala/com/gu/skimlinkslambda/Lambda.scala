@@ -16,7 +16,8 @@ class LambdaInput() {
 
 case class Config(app: String, stack: String, stage: String, skimlinksApiKey: String, skimlinksAccountId: String,
   bucket: String, domainsKey: String) {
-  override def toString: String = s"App: $app, Stack: $stack, Stage: $stage\n"
+  override def toString: String =
+    s"App: $app, Stack: $stack, Stage: $stage apikey: $skimlinksApiKey accountid: $skimlinksAccountId bucket: $bucket, key: $domainsKey \n"
 }
 
 object Lambda {
@@ -51,13 +52,15 @@ object Lambda {
   }
 
   def process(config: Config): Unit = {
-    logger.info("Fetching skimlinks domains")
-    val domainsResult = SkimlinksAPI.getDomains(config.skimlinksApiKey, config.skimlinksAccountId)
-    val uploadResult = domainsResult.map { domains =>
-      logger.info(s"Uploading ${domains.length} domains to S3")
+    logger.info(s"Fetching skimlinks domains with config $config")
+    val domains = SkimlinksAPI.getDomains(config.skimlinksApiKey, config.skimlinksAccountId)
+    if (domains.isEmpty) {
+      logger.error("Failed to fetch domains from skimlinks api")
+      System.exit(1)
+    } else {
+      logger.info(s"Uploading ${domains.length} domains to S3://${config.bucket}/${config.domainsKey}")
       S3.uploadDomainsToS3(domains, config.bucket)
     }
-    if (uploadResult.isLeft) logger.error(s"Failed to fetch domains ", uploadResult.left.get)
   }
 }
 
