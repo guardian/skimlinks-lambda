@@ -9,12 +9,3 @@ deployments:
       functionNames: [skimlinks-lambda-]
       fileName: skimlinks-lambda.jar
       prefixStack: false
-    dependencies: [skimlinks-lambda-cfn]
-  skimlinks-lambda-cfn:
-    type: cloud-formation
-    app: skimlinks-lambda
-    parameters:
-      prependStackToCloudFormationStackName: false
-      cloudFormationStackName: skimlinks-lambda
-      templatePath: cfn.yaml
-      cloudFormationStackByTags: false
