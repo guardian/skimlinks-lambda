@@ -1,0 +1,143 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: A lambda function to periodically update a file in S3 with a list of domains supported by skimlinks.com, fetched from the skimlinks API.
+Parameters:
+  Stack:
+    Description: Stack name
+    Type: String
+    Default: frontend
+  App:
+    Description: Application name
+    Type: String
+    Default: skimlinks-lambda
+  Stage:
+    Description: Stage name
+    Type: String
+    AllowedValues:
+      - CODE
+      - PROD
+    Default: CODE
+  SkimlinksApiKey:
+    Description: Skimlinks.com api key
+    Type: String
+  SkimlinksAccountId:
+    Description: Skimlinks.com account id
+    Type: String
+  DomainsBucket:
+    Description: AWS S3 Bucket in which to save skimlinks domains as csv
+    Default: aws-frontend-store
+    Type: String
+  DomainsKey:
+    Description: Key to use in S3 for the file with domains
+    Default: "skimlinks/skimlinks-domains.csv"
+    Type: String
+  DeployBucket:
+    Description: Bucket where RiffRaff uploads artifacts on deploy
+    Type: String
+    Default: aws-frontend-artifacts
+  AlarmEmailRecipient:
+    Type: String
+    Description: Email address to send alerts to if lambda fails
+Resources:
+  ExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action: sts:AssumeRole
+      Path: /
+      Policies:
+        - PolicyName: logs
+          PolicyDocument:
+            Statement:
+              Effect: Allow
+              Action:
+                - logs:CreateLogGroup
+                - logs:CreateLogStream
+                - logs:PutLogEvents
+              Resource: arn:aws:logs:*:*:*
+        - PolicyName: lambda
+          PolicyDocument:
+            Statement:
+              Effect: Allow
+              Action:
+                - lambda:InvokeFunction
+              Resource: "*"
+        - PolicyName: DomainsBucketPut
+          PolicyDocument:
+            Statement:
+              Effect: Allow
+              Action:
+               - s3:PutObject
+               - s3:PutObjectAcl
+              Resource: !Sub 'arn:aws:s3:::${DomainsBucket}/${DomainsKey}'
+
+  Lambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Sub ${App}-${Stage}
+      Code:
+        S3Bucket:
+          Ref: DeployBucket
+        S3Key: !Sub ${Stack}/${Stage}/${App}/${App}.jar
+      Environment:
+        Variables:
+          Stage: !Ref Stage
+          Stack: !Ref Stack
+          App: !Ref App
+          SkimlinksAccountId: !Ref SkimlinksAccountId
+          SkimlinksApiKey: !Ref SkimlinksApiKey
+          DomainsBucket: !Ref DomainsBucket
+          DomainsKey: !Ref DomainsKey
+      Description: A lambda function to periodically update a file in S3 with a list of domains supported by skimlinks.com, fetched from the skimlinks API.
+      Handler: com.gu.skimlinkslambda.Lambda::handler
+      MemorySize: 256
+      Role: !GetAtt ExecutionRole.Arn
+      Runtime: java8
+      Timeout: 60
+
+  DailyEvent:
+    Type: AWS::Events::Rule
+    Properties:
+      Description: Run daily
+      ScheduleExpression: cron(14 3 * * ? *)
+      Targets:
+        - Id: Lambda
+          Arn: !GetAtt Lambda.Arn
+
+  DailyEventLambdaPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !GetAtt Lambda.Arn
+      Principal: events.amazonaws.com
+      SourceArn: !GetAtt DailyEvent.Arn
+
+  AlarmTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      Subscription:
+        - Protocol: email
+          Endpoint:
+            Ref: AlarmEmailRecipient
+
+  ErrorAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmActions:
+        - !Ref AlarmTopic
+      AlarmDescription: Skimlinks lambda failed to refresh list of supported domains from skimlinks.com API.
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      Dimensions:
+        - Name: FunctionName
+          Value: !Ref Lambda
+      EvaluationPeriods: 1
+      MetricName: Errors
+      Namespace: AWS/Lambda
+      Period: 60
+      Statistic: Sum
+      Threshold: 1
+      Unit: Count
