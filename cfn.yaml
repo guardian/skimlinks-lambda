@@ -24,7 +24,6 @@ Parameters:
     Type: String
   DomainsBucket:
     Description: AWS S3 Bucket in which to save skimlinks domains as csv
-    Default: aws-frontend-store
     Type: String
   DomainsKey:
     Description: Key to use in S3 for the file with domains
