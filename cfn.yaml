@@ -141,3 +141,28 @@ Resources:
       Statistic: Sum
       Threshold: 1
       Unit: Count
+
+  SkimlinksDomainsBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      AccessControl: public-read
+      BucketName: !Ref DomainsBucket # random string on the end for lazy security
+      Tags:
+        - Key: App
+          Value: skimlinks
+        - Key: Stack
+          Value: frontend
+        - Key: Stage
+          Value: PROD
+
+  DomainsBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref DomainsBucket
+      PolicyDocument:
+        Statement:
+          - Action:
+              - "s3:GetObject"
+            Effect: "Allow"
+            Resource: !Sub arns:aws:s3:::${DomainsBucket}/${DomainsKey}
+            Principal: "201359054765"
