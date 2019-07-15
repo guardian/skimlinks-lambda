@@ -36,6 +36,10 @@ Parameters:
   AlarmEmailRecipient:
     Type: String
     Description: Email address to send alerts to if lambda fails
+  MobileAccountID:
+    Type: String
+    Description: AWS Account ID for mobile team
+
 Resources:
   ExecutionRole:
     Type: AWS::IAM::Role
@@ -144,8 +148,7 @@ Resources:
   SkimlinksDomainsBucket:
     Type: AWS::S3::Bucket
     Properties:
-      AccessControl: public-read
-      BucketName: !Ref DomainsBucket # random string on the end for lazy security
+      BucketName: !Ref DomainsBucket
       Tags:
         - Key: App
           Value: skimlinks
@@ -163,5 +166,7 @@ Resources:
           - Action:
               - "s3:GetObject"
             Effect: "Allow"
-            Resource: !Sub arns:aws:s3:::${DomainsBucket}/${DomainsKey}
-            Principal: "201359054765"
+            Resource: !Sub arn:aws:s3:::${DomainsBucket}/${DomainsKey}
+            Principal:
+              AWS:
+                - !Sub arn:aws:iam::${MobileAccountID}:root
