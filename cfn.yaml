@@ -24,7 +24,6 @@ Parameters:
     Type: String
   DomainsBucket:
     Description: AWS S3 Bucket in which to save skimlinks domains as csv
-    Default: aws-frontend-store
     Type: String
   DomainsKey:
     Description: Key to use in S3 for the file with domains
@@ -37,6 +36,10 @@ Parameters:
   AlarmEmailRecipient:
     Type: String
     Description: Email address to send alerts to if lambda fails
+  MobileAccountID:
+    Type: String
+    Description: AWS Account ID for mobile team
+
 Resources:
   ExecutionRole:
     Type: AWS::IAM::Role
@@ -141,3 +144,29 @@ Resources:
       Statistic: Sum
       Threshold: 1
       Unit: Count
+
+  SkimlinksDomainsBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Ref DomainsBucket
+      Tags:
+        - Key: App
+          Value: skimlinks
+        - Key: Stack
+          Value: frontend
+        - Key: Stage
+          Value: PROD
+
+  DomainsBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref DomainsBucket
+      PolicyDocument:
+        Statement:
+          - Action:
+              - "s3:GetObject"
+            Effect: "Allow"
+            Resource: !Sub arn:aws:s3:::${DomainsBucket}/${DomainsKey}
+            Principal:
+              AWS:
+                - !Sub arn:aws:iam::${MobileAccountID}:root
