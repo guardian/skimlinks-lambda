@@ -94,7 +94,7 @@ Resources:
           DomainsKey: !Ref DomainsKey
       Description: A lambda function to periodically update a file in S3 with a list of domains supported by skimlinks.com, fetched from the skimlinks API.
       Handler: com.gu.skimlinkslambda.Lambda::handler
-      MemorySize: 256
+      MemorySize: 512
       Role: !GetAtt ExecutionRole.Arn
       Runtime: java8
       Timeout: 60
