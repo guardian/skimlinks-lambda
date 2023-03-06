@@ -19,7 +19,7 @@ libraryDependencies ++= Seq(
   "com.amazonaws" % "aws-lambda-java-core" % "1.2.0",
   "org.slf4j" % "slf4j-simple" % "1.7.25",
   "org.scalaj" %% "scalaj-http" % "2.3.0",
-  "com.amazonaws" % "aws-java-sdk-s3" % "1.11.312"
+  "com.amazonaws" % "aws-java-sdk-s3" % "1.12.420"
 )
 
 val circeVersion = "0.9.1"
@@ -31,6 +31,13 @@ libraryDependencies ++= Seq(
 ).map(_ % circeVersion)
 
 enablePlugins(RiffRaffArtifact)
+
+assembly / assemblyMergeStrategy := {
+  case PathList(ps @ _*) if ps.last == "module-info.class" => MergeStrategy.discard
+  case x =>
+    val oldStrategy = (assembly / assemblyMergeStrategy).value
+    oldStrategy(x)
+}
 
 assemblyJarName := s"${name.value}.jar"
 riffRaffPackageType := assembly.value
