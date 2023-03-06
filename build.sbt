@@ -32,6 +32,13 @@ libraryDependencies ++= Seq(
 
 enablePlugins(RiffRaffArtifact)
 
+assembly / assemblyMergeStrategy := {
+  case PathList(ps @ _*) if ps.last == "module-info.class" => MergeStrategy.discard
+  case x =>
+    val oldStrategy = (assembly / assemblyMergeStrategy).value
+    oldStrategy(x)
+}
+
 assemblyJarName := s"${name.value}.jar"
 riffRaffPackageType := assembly.value
 riffRaffUploadArtifactBucket := Option("riffraff-artifact")
