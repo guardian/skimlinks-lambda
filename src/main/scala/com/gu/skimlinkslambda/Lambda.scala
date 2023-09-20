@@ -52,7 +52,7 @@ object Lambda {
   }
 
   def process(config: Config): Unit = {
-    logger.info(s"Fetching skimlinks domains with config $config")
+    logger.info(s"Fetching the skimlinks domains with config $config")
     val domains = SkimlinksAPI.getDomains(config.skimlinksApiKey, config.skimlinksAccountId)
     if (domains.isEmpty) {
       logger.error("Failed to fetch domains from skimlinks api")
