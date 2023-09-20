@@ -1,8 +1,9 @@
 name: Build
 on:
-  pull_request:
-  workflow_dispatch:
   push:
+
+  workflow_dispatch:
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -11,16 +12,31 @@ jobs:
       contents: read
     steps:
       - uses: actions/checkout@v4
-      - uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: ${{ secrets.GU_RIFF_RAFF_ROLE_ARN }}
-          aws-region: eu-west-1
       - uses: actions/setup-java@v3
         with:
           java-version: '8'
           distribution: 'adopt'
-      - name: clean, compile, test and upload skimlinks lambda
-        run: |
-          LAST_TEAMCITY_BUILD=135
-          export GITHUB_RUN_NUMBER=$(( $GITHUB_RUN_NUMBER + $LAST_TEAMCITY_BUILD ))
-          sbt -v "clean;compile;test;riffRaffUpload"
+
+      # Setup AWS credentials to enable uploading to S3 for Riff-Raff.
+      # See https://github.com/aws-actions/configure-aws-credentials
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: eu-west-1
+          role-to-assume: ${{ secrets.GU_RIFF_RAFF_ROLE_ARN }}
+
+      - name: clean, compile, test
+        run: sbt -v clean compile test
+
+      - name: Upload to Riff-Raff
+        uses: guardian/actions-riff-raff@v2.2.2
+        with:
+            projectName: skimlinks-lambda
+            configPath: riff-raff.yaml
+            buildNumberOffset: 135
+            contentDirectories: |
+                skimlinks-lambda:
+                - skimlinks-lambda.jar
+                skimlinks-lambda-cfn:
+                - cfn.yaml
+              
+
