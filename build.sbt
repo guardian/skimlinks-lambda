@@ -30,8 +30,6 @@ libraryDependencies ++= Seq(
   "io.circe" %% "circe-parser"
 ).map(_ % circeVersion)
 
-enablePlugins(RiffRaffArtifact)
-
 assembly / assemblyMergeStrategy := {
   case PathList(ps @ _*) if ps.last == "module-info.class" => MergeStrategy.discard
   case x =>
@@ -40,7 +38,3 @@ assembly / assemblyMergeStrategy := {
 }
 
 assemblyJarName := s"${name.value}.jar"
-riffRaffPackageType := assembly.value
-riffRaffUploadArtifactBucket := Option("riffraff-artifact")
-riffRaffUploadManifestBucket := Option("riffraff-builds")
-riffRaffArtifactResources += (file("cfn.yaml"), s"${name.value}-cfn/cfn.yaml")
