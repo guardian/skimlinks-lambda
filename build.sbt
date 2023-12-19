@@ -6,12 +6,12 @@ description:= "A lambda function to periodically update a file in S3 with a list
 
 version := "1.0"
 
-scalaVersion := "2.12.2"
+scalaVersion := "2.13.12"
 
 scalacOptions ++= Seq(
   "-deprecation",
   "-encoding", "UTF-8",
-  "-target:jvm-1.8",
+  "-release:8",
   "-Ywarn-dead-code"
 )
 
@@ -22,7 +22,7 @@ libraryDependencies ++= Seq(
   "com.amazonaws" % "aws-java-sdk-s3" % "1.12.420"
 )
 
-val circeVersion = "0.9.1"
+val circeVersion = "0.14.6"
 
 libraryDependencies ++= Seq(
   "io.circe" %% "circe-core",
