@@ -11,9 +11,15 @@ scalaVersion := "2.13.12"
 scalacOptions ++= Seq(
   "-deprecation",
   "-encoding", "UTF-8",
-  "-release:8",
+  "-release:11",
   "-Ywarn-dead-code"
 )
+
+initialize := {
+  val _ = initialize.value
+  assert(sys.props("java.specification.version") == "11",
+    "Java 11 is required for this project.")
+}
 
 libraryDependencies ++= Seq(
   "com.amazonaws" % "aws-lambda-java-core" % "1.2.2",

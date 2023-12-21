@@ -5,7 +5,6 @@ deployments:
   skimlinks-lambda:
     type: aws-lambda
     parameters:
-      bucket: aws-frontend-artifacts
       functionNames: [skimlinks-lambda-]
       fileName: skimlinks-lambda.jar
       prefixStack: false
