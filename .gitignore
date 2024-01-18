@@ -18,3 +18,6 @@ src_managed/
 project/boot/
 .history
 .cache
+.vscode/
+.metals/
+.bsp/
