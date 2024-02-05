@@ -10,14 +10,32 @@ import org.slf4j.{ Logger, LoggerFactory }
  */
 class LambdaInput() {
   var name: String = _
+
   def getName(): String = name
+
   def setName(theName: String): Unit = name = theName
 }
 
-case class Config(app: String, stack: String, stage: String, skimlinksApiKey: String, skimlinksAccountId: String,
-  bucket: String, domainsKey: String) {
+case class Config(
+  app: String,
+  stack: String,
+  stage: String,
+  skimlinksApiKey: String,
+  skimlinksAccountId: String,
+  skimlinksClientId: String,
+  skimlinksClientSecret: String,
+  bucket: String,
+  domainsKey: String) {
   override def toString: String =
-    s"App: $app, Stack: $stack, Stage: $stage apikey: $skimlinksApiKey accountid: $skimlinksAccountId bucket: $bucket, key: $domainsKey \n"
+    s"App: $app, " +
+      s"Stack: $stack, " +
+      s"Stage: $stage, " +
+      s"apikey: $skimlinksApiKey, " +
+      s"accountId: $skimlinksAccountId, " +
+      s"clientId: ${skimlinksClientId.head}****, " +
+      s"clientSecret: ${skimlinksClientSecret.head}****, " +
+      s"bucket: $bucket, " +
+      s"domainsKey: $domainsKey \n"
 }
 
 object Lambda {
@@ -31,10 +49,21 @@ object Lambda {
       stage <- Option(System.getenv("Stage"))
       apiKey <- Option(System.getenv("SkimlinksApiKey"))
       accountId <- Option(System.getenv("SkimlinksAccountId"))
+      clientId <- Option(System.getenv("SkimlinksClientId"))
+      clientSecret <- Option(System.getenv("SkimlinksClientSecret"))
       domainsBucket <- Option(System.getenv("DomainsBucket"))
       domainsKey <- Option(System.getenv("DomainsKey"))
     } yield {
-      Config(app, stack, stage, apiKey, accountId, domainsBucket, domainsKey)
+      Config(
+        app = app,
+        stack = stack,
+        stage = stage,
+        skimlinksApiKey = apiKey,
+        skimlinksAccountId = accountId,
+        skimlinksClientId = clientId,
+        skimlinksClientSecret = clientSecret,
+        bucket = domainsBucket,
+        domainsKey = domainsKey)
     }
   }
 
@@ -53,7 +82,12 @@ object Lambda {
 
   def process(config: Config): Unit = {
     logger.info(s"Fetching the skimlinks domains with config $config")
-    val domains = SkimlinksAPI.getDomains(config.skimlinksApiKey, config.skimlinksAccountId)
+
+    val domains = SkimlinksAPI.getAccessToken(config.skimlinksClientId, config.skimlinksClientSecret) match {
+      case Some(authToken) => SkimlinksAPI.getDomains(authToken, config.skimlinksAccountId)
+      case None => List.empty
+    }
+
     if (domains.isEmpty) {
       logger.error("Failed to fetch domains from skimlinks api")
       System.exit(1)
@@ -67,10 +101,10 @@ object Lambda {
 object TestIt {
   def main(args: Array[String]): Unit = {
     args.foreach(println)
-    if (args.length < 4) {
-      println("Usage: run <apikey> <accountid> <bucket> <key>")
+    if (args.length < 6) {
+      println("Usage: run <apikey> <accountId> <clientId> <clientSecret> <domainsBucket> <domainsKey>")
     } else {
-      Lambda.process(Config("test", "test", "test", args(0), args(1), args(2), args(3)))
+      Lambda.process(Config("test", "test", "test", args(0), args(1), args(2), args(3), args(4), args(5)))
     }
   }
 }
