@@ -17,7 +17,7 @@ object SkimlinksAPI {
          | "client_secret": "$clientSecret",
          | "grant_type": "client_credentials"
          |}""".stripMargin
-    ).asString
+    ).headers(Map("Content-Type" -> "application/json")).asString
 
     if (authResponse.isSuccess) {
       parse(authResponse.body).map { authJson =>
@@ -27,6 +27,7 @@ object SkimlinksAPI {
         result
       }.toOption
     } else {
+      logger.error(s"Could not obtain authentication token: $authResponse")
       None
     }
   }
