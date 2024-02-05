@@ -32,8 +32,8 @@ case class Config(
       s"Stage: $stage, " +
       s"apikey: $skimlinksApiKey, " +
       s"accountId: $skimlinksAccountId, " +
-      s"clientId: $skimlinksClientId, " +
-      s"clientSecret: $skimlinksClientSecret, " +
+      s"clientId: ${skimlinksClientId.head}****, " +
+      s"clientSecret: ${skimlinksClientSecret.head}****, " +
       s"bucket: $bucket, " +
       s"domainsKey: $domainsKey \n"
 }
@@ -101,7 +101,7 @@ object Lambda {
 object TestIt {
   def main(args: Array[String]): Unit = {
     args.foreach(println)
-    if (args.length < 4) {
+    if (args.length < 6) {
       println("Usage: run <apikey> <accountId> <clientId> <clientSecret> <domainsBucket> <domainsKey>")
     } else {
       Lambda.process(Config("test", "test", "test", args(0), args(1), args(2), args(3), args(4), args(5)))
