@@ -30,12 +30,11 @@ jobs:
       - name: Upload to Riff-Raff
         uses: guardian/actions-riff-raff@v2.2.2
         with:
-            projectName: skimlinks-lambda
-            configPath: riff-raff.yaml
-            buildNumberOffset: 135
-            contentDirectories: |
-                skimlinks-lambda:
-                - skimlinks-lambda.jar
-                skimlinks-lambda-cfn:
-                - cfn.yaml
-              
+          projectName: skimlinks-lambda
+          configPath: riff-raff.yaml
+          buildNumberOffset: 135
+          contentDirectories: |
+            skimlinks-lambda:
+            - skimlinks-lambda.jar
+            skimlinks-lambda-cfn:
+            - cfn.yaml

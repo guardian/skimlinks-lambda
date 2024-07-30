@@ -15,12 +15,6 @@ scalacOptions ++= Seq(
   "-Ywarn-dead-code"
 )
 
-initialize := {
-  val _ = initialize.value
-  assert(sys.props("java.specification.version") == "11",
-    "Java 11 is required for this project.")
-}
-
 libraryDependencies ++= Seq(
   "com.amazonaws" % "aws-lambda-java-core" % "1.2.2",
   "org.slf4j" % "slf4j-simple" % "2.0.5",
