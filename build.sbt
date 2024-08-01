@@ -30,6 +30,8 @@ libraryDependencies ++= Seq(
   "io.circe" %% "circe-parser"
 ).map(_ % circeVersion)
 
+dependencyOverrides += "com.fasterxml.jackson.core" % "jackson-core" % "[2.16,)"
+
 assembly / assemblyMergeStrategy := {
   case PathList(ps @ _*) if ps.last == "module-info.class" => MergeStrategy.discard
   case x =>
