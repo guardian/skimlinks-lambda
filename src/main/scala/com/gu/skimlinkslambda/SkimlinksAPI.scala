@@ -9,6 +9,7 @@ object SkimlinksAPI {
   val logger: Logger = LoggerFactory.getLogger(this.getClass)
 
   def getAccessToken(clientId: String, clientSecret: String): Option[String] = {
+    logger.info(s"Starting fetch of auth ${clientId}")
     val authResponse = Http(
       url = "https://authentication.skimapis.com/access_token",
     ).postData(
@@ -33,8 +34,10 @@ object SkimlinksAPI {
   }
 
   def getDomains(accessToken: String, publisherId: String): List[String] = {
+    logger.info(s"calling get domains")
     val skimLinksDomainsUrl: String = s"https://merchants.skimapis.com/v4/publisher/$publisherId/domains"
 
+    logger.info(s"access_token: ${accessToken.slice(0,5)}...")
     val domainsJson = Http(skimLinksDomainsUrl)
       .param("access_token", accessToken)
       .asString
