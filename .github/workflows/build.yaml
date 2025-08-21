@@ -12,10 +12,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-java@v4
-        with:
-          java-version: '11'
-          distribution: 'adopt'
+      - uses: guardian/setup-scala@v1
 
       - name: clean, compile, test, assemble jar, copy to root dir
         run: |
