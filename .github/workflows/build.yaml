@@ -14,8 +14,9 @@ jobs:
 
       - uses: actions/setup-java@v4
         with:
-          java-version: '11'
-          distribution: 'adopt'
+          distribution: corretto
+          cache: sbt
+          java-version: 11
 
       - name: clean, compile, test, assemble jar, copy to root dir
         run: |
