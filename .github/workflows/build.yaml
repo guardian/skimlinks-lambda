@@ -19,15 +19,12 @@ jobs:
           sbt -v clean compile test assembly
           cp target/scala*/skimlinks-lambda.jar .
 
-      - uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: ${{ secrets.GU_RIFF_RAFF_ROLE_ARN }}
-          aws-region: eu-west-1
-
       - name: Upload to Riff-Raff
-        uses: guardian/actions-riff-raff@v2.2.2
+        uses: guardian/actions-riff-raff@v4
         with:
           projectName: skimlinks-lambda
+          githubToken: ${{ secrets.GITHUB_TOKEN }}
+          roleArn: ${{ secrets.GU_RIFF_RAFF_ROLE_ARN }}
           configPath: riff-raff.yaml
           buildNumberOffset: 135
           contentDirectories: |
