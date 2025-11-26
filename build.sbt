@@ -6,7 +6,7 @@ description:= "A lambda function to periodically update a file in S3 with a list
 
 version := "1.0"
 
-scalaVersion := "2.13.12"
+scalaVersion := "2.13.18"
 
 scalacOptions ++= Seq(
   "-deprecation",
