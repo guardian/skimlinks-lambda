@@ -33,10 +33,8 @@ libraryDependencies ++= Seq(
 dependencyOverrides += "com.fasterxml.jackson.core" % "jackson-core" % "[2.16,)"
 
 assembly / assemblyMergeStrategy := {
-  case PathList(ps @ _*) if ps.last == "module-info.class" => MergeStrategy.discard
-  case x =>
-    val oldStrategy = (assembly / assemblyMergeStrategy).value
-    oldStrategy(x)
+  case PathList("META-INF", xs @ _*) => MergeStrategy.discard
+  case _ => MergeStrategy.first
 }
 
 assemblyJarName := s"${name.value}.jar"
