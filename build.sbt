@@ -6,7 +6,7 @@ description:= "A lambda function to periodically update a file in S3 with a list
 
 version := "1.0"
 
-scalaVersion := "2.13.12"
+scalaVersion := "2.13.18"
 
 scalacOptions ++= Seq(
   "-deprecation",
@@ -19,7 +19,7 @@ libraryDependencies ++= Seq(
   "com.amazonaws" % "aws-lambda-java-core" % "1.2.2",
   "org.slf4j" % "slf4j-simple" % "2.0.5",
   "org.scalaj" %% "scalaj-http" % "2.4.2",
-  "com.amazonaws" % "aws-java-sdk-s3" % "1.12.643"
+  "software.amazon.awssdk" % "s3" % "2.39.0",
 )
 
 val circeVersion = "0.14.6"
@@ -33,10 +33,8 @@ libraryDependencies ++= Seq(
 dependencyOverrides += "com.fasterxml.jackson.core" % "jackson-core" % "2.20.1"
 
 assembly / assemblyMergeStrategy := {
-  case PathList(ps @ _*) if ps.last == "module-info.class" => MergeStrategy.discard
-  case x =>
-    val oldStrategy = (assembly / assemblyMergeStrategy).value
-    oldStrategy(x)
+  case PathList("META-INF", "MANIFEST.MF") => MergeStrategy.discard
+  case _ => MergeStrategy.first
 }
 
 assemblyJarName := s"${name.value}.jar"
