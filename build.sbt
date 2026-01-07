@@ -6,7 +6,7 @@ description:= "A lambda function to periodically update a file in S3 with a list
 
 version := "1.0"
 
-scalaVersion := "2.13.12"
+scalaVersion := "2.13.18"
 
 scalacOptions ++= Seq(
   "-deprecation",
@@ -30,7 +30,7 @@ libraryDependencies ++= Seq(
   "io.circe" %% "circe-parser"
 ).map(_ % circeVersion)
 
-dependencyOverrides += "com.fasterxml.jackson.core" % "jackson-core" % "[2.16,)"
+dependencyOverrides += "com.fasterxml.jackson.core" % "jackson-core" % "2.20.1"
 
 assembly / assemblyMergeStrategy := {
   case PathList("META-INF", "MANIFEST.MF") => MergeStrategy.discard
