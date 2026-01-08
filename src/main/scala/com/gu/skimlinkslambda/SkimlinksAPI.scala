@@ -1,7 +1,7 @@
 package com.gu.skimlinkslambda
 
 import io.circe.parser._
-import org.slf4j.{Logger, LoggerFactory}
+import org.slf4j.{ Logger, LoggerFactory }
 import scalaj.http._
 
 object SkimlinksAPI {
@@ -11,14 +11,12 @@ object SkimlinksAPI {
   def getAccessToken(clientId: String, clientSecret: String): Option[String] = {
     logger.info(s"calling getAccessToken for clientId: ${clientId.take(4)}****")
     val authResponse = Http(
-      url = "https://authentication.skimapis.com/access_token",
-    ).postData(
+      url = "https://authentication.skimapis.com/access_token").postData(
       s"""{
          | "client_id": "$clientId",
          | "client_secret": "$clientSecret",
          | "grant_type": "client_credentials"
-         |}""".stripMargin
-    ).headers(Map("Content-Type" -> "application/json")).asString
+         |}""".stripMargin).headers(Map("Content-Type" -> "application/json")).asString
 
     if (authResponse.isSuccess) {
       logger.info("Successfully received response from Skimlinks authentication API")
@@ -38,7 +36,7 @@ object SkimlinksAPI {
     logger.info(s"Fetching domains for publisherId: $publisherId")
     val skimLinksDomainsUrl: String = s"https://merchants.skimapis.com/v4/publisher/$publisherId/domains"
 
-    logger.info(s"get domains using access_token: ${accessToken.slice(0,4)}****")
+    logger.info(s"get domains using access_token: ${accessToken.slice(0, 4)}****")
     val domainsJson = Http(skimLinksDomainsUrl)
       .param("access_token", accessToken)
       .timeout(connTimeoutMs = 10000, readTimeoutMs = 10000)
