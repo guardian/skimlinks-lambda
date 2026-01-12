@@ -17,7 +17,7 @@ scalacOptions ++= Seq(
 
 libraryDependencies ++= Seq(
   "com.amazonaws" % "aws-lambda-java-core" % "1.2.3",
-  "org.slf4j" % "slf4j-simple" % "2.0.5",
+  "org.slf4j" % "slf4j-simple" % "2.0.17",
   "org.scalaj" %% "scalaj-http" % "2.4.2",
   "software.amazon.awssdk" % "s3" % "2.39.6",
 )
