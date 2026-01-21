@@ -39,7 +39,7 @@ object SkimlinksAPI {
     logger.info(s"get domains using access_token: ${accessToken.slice(0, 4)}****")
     val domainsJson = Http(skimLinksDomainsUrl)
       .param("access_token", accessToken)
-      .timeout(connTimeoutMs = 10000, readTimeoutMs = 10000)
+      .timeout(connTimeoutMs = 10000, readTimeoutMs = 30000)
       .asString
 
     if (domainsJson.isSuccess) {
