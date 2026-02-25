@@ -30,7 +30,7 @@ libraryDependencies ++= Seq(
   "io.circe" %% "circe-parser"
 ).map(_ % circeVersion)
 
-dependencyOverrides += "com.fasterxml.jackson.core" % "jackson-core" % "2.21.0"
+dependencyOverrides += "com.fasterxml.jackson.core" % "jackson-core" % "2.21.1"
 
 assembly / assemblyMergeStrategy := {
   case PathList("META-INF", "MANIFEST.MF") => MergeStrategy.discard
