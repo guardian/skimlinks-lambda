@@ -2,6 +2,8 @@ package com.gu.skimlinkslambda
 
 import com.amazonaws.services.lambda.runtime.Context
 import org.slf4j.{ Logger, LoggerFactory }
+import com.gu.skimlinkslambda.S3
+import com.gu.skimlinkslambda.SkimlinksAPI
 
 /**
  * This is compatible with aws' lambda JSON to POJO conversion.
@@ -80,21 +82,41 @@ object Lambda {
     }
   }
 
+  def hasExcessiveDropOff(previousCount: Int, newCount: Int): Boolean = {
+    previousCount > 0 && newCount < previousCount * 0.8
+  }
+
   def process(config: Config): Unit = {
     logger.info(s"Fetching the skimlinks domains with config $config")
 
     val domains = SkimlinksAPI.getAccessToken(config.skimlinksClientId, config.skimlinksClientSecret) match {
       case Some(authToken) => SkimlinksAPI.getDomains(authToken, config.skimlinksAccountId)
-      case None => List.empty
+      case None =>
+        logger.error("Failed to obtain access token from Skimlinks API")
+        List.empty
     }
 
     if (domains.isEmpty) {
-      logger.error("Failed to fetch domains from skimlinks api")
+      logger.error("Skimlinks API returned an empty domain list")
       System.exit(1)
-    } else {
-      logger.info(s"Uploading ${domains.length} domains to S3://${config.bucket}/${config.domainsKey}")
-      S3.uploadDomainsToS3(domains, config.bucket)
     }
+
+    val previousDomains = S3.fetchPreviousDomainsFromS3(config.bucket) match {
+      case Some(prev) =>
+        logger.info(s"Fetched ${prev.length} previous domains from S3")
+        prev
+      case None =>
+        logger.warn("No previous domains found in S3, this might be the first run")
+        List.empty
+    }
+
+    if (previousDomains.nonEmpty && hasExcessiveDropOff(previousDomains.length, domains.length)) {
+      val dropPercent = ((previousDomains.length - domains.length).toDouble / previousDomains.length * 100).round
+      logger.warn(s"Domain count dropped from ${previousDomains.length} to ${domains.length} ($dropPercent% drop), exceeding 20% threshold. Consider investigating and raising with Skimlinks.")
+    }
+
+    logger.info(s"Uploading ${domains.length} domains to S3://${config.bucket}/${config.domainsKey}")
+    S3.uploadDomainsToS3(domains, config.bucket)
   }
 }
 

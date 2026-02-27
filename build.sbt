@@ -20,6 +20,7 @@ libraryDependencies ++= Seq(
   "org.slf4j" % "slf4j-simple" % "2.0.17",
   "org.scalaj" %% "scalaj-http" % "2.4.2",
   "software.amazon.awssdk" % "s3" % "2.41.26",
+  "org.scalatest" %% "scalatest" % "3.2.18" % Test
 )
 
 val circeVersion = "0.14.15"
