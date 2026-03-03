@@ -19,10 +19,8 @@ Parameters:
   SkimlinksApiKey:
     Description: Skimlinks.com api key
     Type: String
-    Default: "skimlinks-api-key"
   SkimlinksAccountId:
     Description: Skimlinks.com account id
-    Default: "skimlinks-account-id"
     Type: String
   DomainsBucket:
     Description: AWS S3 Bucket in which to save skimlinks domains as csv
@@ -39,8 +37,6 @@ Parameters:
   AlarmEmailRecipient:
     Type: String
     Description: Email address to send alerts to if lambda fails
-    Default: "email@ampersand.com"
-
 Resources:
   ExecutionRole:
     Type: AWS::IAM::Role
