@@ -41,9 +41,6 @@ Parameters:
     Description: Email address to send alerts to if lambda fails
     Default: "email@ampersand.com"
 
-Conditions:
-  ProdOnlyResource: !Equals [!Ref Stage, PROD]
-
 Resources:
   ExecutionRole:
     Type: AWS::IAM::Role
@@ -124,7 +121,6 @@ Resources:
       SourceArn: !GetAtt DailyEvent.Arn
 
   AlarmTopic:
-    Condition: ProdOnlyResource
     Type: AWS::SNS::Topic
     Properties:
       Subscription:
