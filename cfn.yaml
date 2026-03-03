@@ -96,7 +96,7 @@ Resources:
       Handler: com.gu.skimlinkslambda.Lambda::handler
       MemorySize: 512
       Role: !GetAtt ExecutionRole.Arn
-      Runtime: java11
+      Runtime: java21
       Timeout: 60
 
   DailyEvent:
