@@ -40,6 +40,10 @@ Parameters:
     Type: String
     Description: Email address to send alerts to if lambda fails
     Default: "email"
+
+Conditions:
+  ProdOnlyResource: !Equals [!Ref Stage, PROD]
+
 Resources:
   ExecutionRole:
     Type: AWS::IAM::Role
@@ -120,6 +124,7 @@ Resources:
       SourceArn: !GetAtt DailyEvent.Arn
 
   AlarmTopic:
+    Condition: ProdOnlyResource
     Type: AWS::SNS::Topic
     Properties:
       Subscription:
