@@ -39,7 +39,7 @@ Parameters:
   AlarmEmailRecipient:
     Type: String
     Description: Email address to send alerts to if lambda fails
-    Default: "email"
+    Default: "email@ampersand.com"
 
 Conditions:
   ProdOnlyResource: !Equals [!Ref Stage, PROD]
