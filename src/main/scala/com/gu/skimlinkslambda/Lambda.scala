@@ -93,7 +93,7 @@ object Lambda {
       System.exit(1)
     } else {
       logger.info(s"Uploading ${domains.length} domains to S3://${config.bucket}/${config.domainsKey}")
-      S3.uploadDomainsToS3(domains, config.bucket)
+      S3.uploadDomainsToS3(domains, config.bucket, config.domainsKey)
     }
   }
 }

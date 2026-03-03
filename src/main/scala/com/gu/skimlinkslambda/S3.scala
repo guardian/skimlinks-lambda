@@ -6,7 +6,7 @@ import software.amazon.awssdk.services.s3.S3Client
 import software.amazon.awssdk.services.s3.model.PutObjectRequest
 
 object S3 {
-  def uploadDomainsToS3(domains: List[String], bucket: String): Unit = {
+  def uploadDomainsToS3(domains: List[String], bucket: String, domainsFile: String): Unit = {
     val credentials: AwsCredentialsProviderChain =
       AwsCredentialsProviderChain
         .builder()
@@ -18,7 +18,7 @@ object S3 {
     val s3Client = S3Client.builder().credentialsProvider(credentials).build()
 
     val result = s3Client.putObject(
-      PutObjectRequest.builder().bucket(bucket).key("skimlinks/skimlinks-domains.csv").build(),
+      PutObjectRequest.builder().bucket(bucket).key(domainsFile).build(),
       RequestBody.fromString(domains.mkString(",")))
 
     println(result)
